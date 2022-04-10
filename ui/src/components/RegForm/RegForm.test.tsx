@@ -1,14 +1,14 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import ProTip from './ProTip';
+import RegForm from './RegForm';
 
-describe('<ProTip />', () => {
+describe('<RegForm />', () => {
   test('it should mount', () => {
-    render(<ProTip />);
+    render(<RegForm />);
     
-    const proTip = screen.getByTestId('ProTip');
+    const regForm = screen.getByTestId('RegForm');
 
-    expect(proTip).toBeInTheDocument();
+    expect(regForm).toBeInTheDocument();
   });
 });

@@ -53,7 +53,9 @@ const reg = async ({email, password, firstName, lastName}: IRegData): Promise<IR
     }
 
 };
+
 interface IRegResult {success: boolean, errorMessage: string}
+
 export default function useMutationUserReg(onSuccessCallback: (e: IRegResult) => void) {
     const {
         data,

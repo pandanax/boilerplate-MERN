@@ -1,25 +1,36 @@
 import * as React from 'react';
 import {useState} from 'react';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import Tooltip from '@mui/material/Tooltip';
 import {Link as RouterLink, useNavigate} from 'react-router-dom';
 import useQueryCurrentUser from '../../hooks/user/useQueryCurrentUser';
-import {ListItemIcon, Menu, MenuItem} from '@mui/material';
+import {Link, ListItemIcon, Menu, MenuItem} from '@mui/material';
 import {Logout} from '@mui/icons-material';
 import './Menu.css';
+import {QueryClient} from 'react-query';
 
 
 export default function AccountMenu() {
 
     let navigate = useNavigate();
 
-    const {data: user, isLoading: isUserLoading, error: userError} = useQueryCurrentUser();
+    const queryClient = new QueryClient({
+        defaultOptions: {
+            queries: {
+                staleTime: Infinity,
+            },
+        },
+    })
 
-    const logout = () => {
-        localStorage.setItem('token', '');
-        window.location.href = '/';
+    const {data: user, isLoading: isUserLoading} = useQueryCurrentUser();
+    const {refetch: refetchCurrentUser} = useQueryCurrentUser();
+
+
+    const logout = async () => {
+        localStorage.removeItem('token');
+        await refetchCurrentUser();
+        return navigate('/');
     }
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -41,40 +52,49 @@ export default function AccountMenu() {
             }}>
                 <Box sx={{display: 'flex'}}>
                     <Typography sx={{minWidth: 100}}>
-                        <RouterLink to="/">Home</RouterLink>
+                        <Link component={RouterLink} to="/">
+                            Все курсы
+                        </Link>
                     </Typography>
                     <Typography sx={{minWidth: 100}}>
-                        <RouterLink to="/about">About</RouterLink>
+                        <Link component={RouterLink} to="/my">
+                            Мои Курсы
+                        </Link>
                     </Typography>
                 </Box>
 
-                {userError &&
+                {!user && !isUserLoading &&
                 <Box sx={{display: 'flex'}}>
 
                     <Typography sx={{minWidth: 100}}>
-                        <RouterLink to="/auth">Войти</RouterLink>
+                        <Link component={RouterLink} to="/auth">
+                            Вход
+                        </Link>
                     </Typography>
 
                     <Typography sx={{minWidth: 100}}>
-                        <RouterLink to="/registration">Зарегистрироваться</RouterLink>
+                        <Link component={RouterLink} to="/registration">
+                            Регистрация
+                        </Link>
                     </Typography>
                 </Box>
                 }
 
-                {!isUserLoading && !userError && user &&
-                <Tooltip title="Account settings">
-                    <IconButton
-                        onClick={handleClick}
-                        size="small"
-                        sx={{ml: 2}}
-                        aria-controls={open ? 'account-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                    >
-                        {/*<Avatar sx={{ width: 32, height: 32 }}></Avatar>*/}
+                {!isUserLoading && user &&
+
+                <Button
+                    onClick={handleClick}
+                    size="small"
+                    sx={{ml: 2}}
+                    aria-controls={open ? 'account-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
+                >
+                    <>
                         {user && user.firstName} {user && user.lastName}
-                    </IconButton>
-                </Tooltip>
+                    </>
+                </Button>
+
                 }
             </Box>
             {!isUserLoading && user &&
